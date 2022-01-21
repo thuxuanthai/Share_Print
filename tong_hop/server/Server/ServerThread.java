@@ -10,6 +10,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -17,15 +25,21 @@ import javax.swing.JTextArea;
 
 import data.Data;
 
-public class ServerThread extends Thread{
-		private Socket socket ;
-		private JTextArea txt = null;
-	    private ObjectOutputStream out;
-	    private ObjectInputStream in;
-	    private DefaultListModel modFile = new DefaultListModel();
-	    private DefaultListModel modClient = new DefaultListModel();
-	    private JTextArea LuuTep = new JTextArea();
-	    
+public class ServerThread extends Thread {
+	private Socket socket;
+	private JTextArea txt = null;
+	private ObjectOutputStream out;
+	private ObjectInputStream in;
+	private DefaultListModel modFile = new DefaultListModel();
+	private DefaultListModel modClient = new DefaultListModel();
+	private JTextArea LuuTep = new JTextArea();
+	Data data;
+	Runnable r = null;
+//	   BlockingQueue<Runnable> blockingQueue;
+	  
+	   
+
+
 	public ServerThread(Socket socket, DefaultListModel modF, DefaultListModel modClient, JTextArea txt) {
 		this.socket = socket;
 		this.modFile = modF;
@@ -34,58 +48,29 @@ public class ServerThread extends Thread{
 	}
 
 	@Override
-	  public void run() {
+	public void run() {
 		try {
 			in = new ObjectInputStream(socket.getInputStream());
-			Data data = (Data) in.readObject();
-	         String nameClient = inhoa(data.getNameClient()).trim();
-	         modClient.addElement(nameClient);
-	         txt.append("New client " + nameClient + " has been connected ...\n");
-	         while (true) {
-	             data = (Data) in.readObject();
-	             
-	             File fileReceive = new File("file/"+data.getNameFile());
-	             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileReceive));
-	                
-
-	                // write file content
-	                bos.write(data.getFile());
-	                bos.flush();
-	             
-		             	FileReader fileReader = 
-		                        new FileReader(fileReceive);
-		            	BufferedReader  bufferedReader = 
-		                        new BufferedReader(fileReader);
-		            	 LuuTep.read(bufferedReader, null);
-		            	 bufferedReader.close();
-		            	 LuuTep.requestFocus();
-		            	 try {
-								LuuTep.print();
-							} catch (PrinterException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-	             modFile.addElement(data);
-	             txt.append(nameClient + " get 1 file ... \n");
-	         }
+			data = (Data) in.readObject();
+			String nameClient = data.getNameClient();
+			modClient.addElement(nameClient);
+			txt.append("New client " + nameClient + " has been connected ...\n");
+			
+			while (true) {
+					data = (Data) in.readObject();
+					r = new ServerFile(data, modFile,nameClient, txt);
+					Server ser = new Server();
+					ser.exService.submit(r);
+					
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	}
-	
-	public String inhoa(String name) {
-		String[] tam1 = name.split(" ");
-		String tam2 = "";
-		for(String i : tam1) {
-			i = i.substring(0,1).toUpperCase() + i.substring(1).toLowerCase();
-			tam2 = tam2 + i + " ";
-		}
-		return tam2;
+
 	}
 
 	public DefaultListModel getModFile() {
@@ -111,5 +96,10 @@ public class ServerThread extends Thread{
 	public void setTxt(JTextArea txt) {
 		this.txt = txt;
 	}
+
+
+
+
+
 	
 }

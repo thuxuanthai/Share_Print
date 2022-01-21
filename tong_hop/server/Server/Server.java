@@ -45,6 +45,16 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -63,6 +73,13 @@ public class Server extends JFrame{
     private DefaultListModel modClient = new DefaultListModel();
     private JList listtt ;
     private JList list_dS_cLient;
+    public static ExecutorService exService = new ThreadPoolExecutor(
+    		 1,
+    		 1,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+    
     
     private ServerSocket server;
 	
@@ -115,7 +132,7 @@ public class Server extends JFrame{
 	        lblNewLabel.setBounds(204, 58, 66, 18);
 	        contentPane.add(lblNewLabel);
 	        
-	        txtPortServer = new JTextField();
+	        txtPortServer = new JTextField("9999");
 	        txtPortServer.setBounds(280, 58, 90, 20);
 	        contentPane.add(txtPortServer);
 	        txtPortServer.setColumns(10);
@@ -184,11 +201,13 @@ public class Server extends JFrame{
 	         	                    server = new ServerSocket(Integer.parseInt(txtPortServer.getText().trim()));
 	         	                    txt.append("Server stating ...\n");
 	         	                    while (true) {
-	         	                		ServerThread sv = new ServerThread(server.accept(), modFile, modClient, txt);
+	         	                		ServerThread sv = new ServerThread(server.accept(), modFile, 
+	         	                				modClient, txt);
 	         	                	 	sv.start();
 	         	                	 	listtt.setModel(sv.getModFile());
 	         	                	 	list_dS_cLient.setModel(sv.getModClient());
 	         	                	 	txt = sv.getTxt();
+	         	                	 
 	         	                   }
 	         	                } catch (Exception e) {
 	         	                    JOptionPane.showMessageDialog(Server.this, e, "Error", JOptionPane.ERROR_MESSAGE);

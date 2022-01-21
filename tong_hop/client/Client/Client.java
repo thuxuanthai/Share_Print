@@ -55,7 +55,6 @@ public class Client extends JFrame {
 	private JButton btnKetNoi;
 	private JButton btnIn;
 	private DefaultListModel model_trangThai;
-	private  JComboBox comboBox;
 	JTextArea txt;
 	ObjectOutputStream out;
 	 
@@ -124,7 +123,7 @@ public class Client extends JFrame {
         lblNewLabel.setFont(new Font("Dialog", Font.BOLD, 13));
         contentPane.add(lblNewLabel);
         
-        txtPortClient = new JTextField();
+        txtPortClient = new JTextField("9999");
         txtPortClient.setBounds(278, 125, 145, 20);
         txtPortClient.setBackground(new Color(245, 245, 245));
         txtPortClient.setColumns(10);
@@ -184,12 +183,11 @@ public class Client extends JFrame {
                          byte b[] = new byte[in.available()];
                          in.read(b);
                          Data data = new Data();
-                         data.setStatus(comboBox.getSelectedItem() + "");
                          data.setNameFile(txtName.getText().trim());
                          data.setFile(b);
                          out.writeObject(data);
                          out.flush();
-                         txt.append("send 1 file ../n");
+                         txt.append("send 1 file ...\n");
                      
                  } catch (Exception e2) {
                      JOptionPane.showMessageDialog(null, e2, "Error", JOptionPane.ERROR_MESSAGE);
@@ -252,10 +250,6 @@ public class Client extends JFrame {
         btnKetNoi.setBounds(488, 64, 118, 25);
         contentPane.add(btnKetNoi);
         
-         comboBox = new JComboBox();
-        comboBox.setBounds(169, 320, 71, 26);
-        comboBox.setModel(new DefaultComboBoxModel(new String[] {"Img", "File"}));
-        contentPane.add(comboBox);
         
         JButton btnngKtNi = new JButton("Đóng kết nối");
         btnngKtNi.setFont(new Font("Tahoma", Font.BOLD, 11));
