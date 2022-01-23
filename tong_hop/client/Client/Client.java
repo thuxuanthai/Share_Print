@@ -187,10 +187,11 @@ public class Client extends JFrame {
                          data.setFile(b);
                          out.writeObject(data);
                          out.flush();
-                         txt.append("send 1 file ...\n");
+                         txt.append("Đã gửi 1 tệp với tên "+txtName.getText()+"...\n"); 
+                         txtName.setText("");
                      
                  } catch (Exception e2) {
-                     JOptionPane.showMessageDialog(null, e2, "Error", JOptionPane.ERROR_MESSAGE);
+                     JOptionPane.showMessageDialog(null, e2, "Lỗi", JOptionPane.ERROR_MESSAGE);
                  }
          	
          	}
@@ -232,7 +233,7 @@ public class Client extends JFrame {
          	public void actionPerformed(ActionEvent e) {
          		try {
                     socket = new Socket(txtDiaChiIP.getText().trim(), Integer.parseInt(txtPortClient.getText().trim()));
-                    txt.append("Connect success ...\n");
+                    txt.append("Đã kết nối thành công ...\n");
                     out = new ObjectOutputStream(socket.getOutputStream());
                     Data data = new Data();
                     data.setStatus("new");
@@ -240,7 +241,7 @@ public class Client extends JFrame {
                     out.writeObject(data);
                     out.flush();
                 } catch (Exception e1) {
-                    JOptionPane.showMessageDialog(null, e1, "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, e1, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
          	}
          });

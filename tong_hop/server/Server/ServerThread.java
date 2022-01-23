@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -54,14 +55,19 @@ public class ServerThread extends Thread {
 			data = (Data) in.readObject();
 			String nameClient = data.getNameClient();
 			modClient.addElement(nameClient);
-			txt.append("New client " + nameClient + " has been connected ...\n");
+			txt.append("Máy khách mới với tên " + nameClient + " đã kết nối ...\n");
 			
 			while (true) {
 					data = (Data) in.readObject();
 					r = new ServerFile(data, modFile,nameClient, txt);
 					Server ser = new Server();
 					ser.exService.submit(r);
-					
+					if(!ser.queue.isEmpty()) {
+						ser.modHangdoi.addElement(data.getNameFile());
+					}else {
+						ser.modHangdoi.clear();
+					}
+					txt.append(nameClient + " đã gửi 1 tệp với tên "+data.getNameFile()+"\n");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -96,9 +102,6 @@ public class ServerThread extends Thread {
 	public void setTxt(JTextArea txt) {
 		this.txt = txt;
 	}
-
-
-
 
 
 	

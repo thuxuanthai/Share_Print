@@ -63,7 +63,7 @@ public ServerFile(Data data, DefaultListModel modF, String name , JTextArea txt)
 						
              modFile.addElement(data.getNameFile());
              System.out.println(data.getNameFile() + " xong");
-             txt.append(name + " get 1 file ... \n");
+             
       
 	} catch (IOException e) {
 		// TODO Auto-generated catch block

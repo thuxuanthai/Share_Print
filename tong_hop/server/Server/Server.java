@@ -67,18 +67,22 @@ public class Server extends JFrame{
 	private JLabel lblNewLabel;
 	private JButton btnKhoiDongServer;
 	private JButton btnDungServer;
+	private String tam;
 	private Thread run;
 	private JTextArea txt = null;
     private DefaultListModel modFile = new DefaultListModel();
     private DefaultListModel modClient = new DefaultListModel();
+    public static DefaultListModel modHangdoi = new DefaultListModel();
+    public static LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
     private JList listtt ;
-    private JList list_dS_cLient;
+    private JList list_dS_cLient, list_dS_hangDoi;
     public static ExecutorService exService = new ThreadPoolExecutor(
-    		 1,
-    		 1,
-            0L,
+    		 1,														//Số lượng Thread mặc định trong Pool
+    		 1,														//Số lượng tối đa Thread trong Pool, khi hàng đợi full, server quá tải
+            0L,														//0 kiểu Long
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
+            queue);                    								//Hàng đợi sắp xếp các phần tử theo dạng FIFO (nhập trước xuất trước)
+    																	//(lấy ra phần tử lâu đời nhất trong hàng đợi)
     
     
     private ServerSocket server;
@@ -154,14 +158,14 @@ public class Server extends JFrame{
 	        contentPane.add(btnDungServer);
 	        
 	        JScrollPane scrollPane = new JScrollPane();
-	        scrollPane.setBounds(172, 230, 382, 168);
+	        scrollPane.setBounds(172, 254, 382, 150);
 	        contentPane.add(scrollPane);
 	        
 	         listtt = new JList();
 	        scrollPane.setViewportView(listtt);
 	        
 	        JScrollPane scrollPane_1 = new JScrollPane();
-	        scrollPane_1.setBounds(172, 111, 382, 92);
+	        scrollPane_1.setBounds(172, 111, 382, 113);
 	        contentPane.add(scrollPane_1);
 	        
 	         txt = new JTextArea();
@@ -173,13 +177,13 @@ public class Server extends JFrame{
 	        lblNewLabel_1.setBounds(172, 87, 125, 23);
 	        contentPane.add(lblNewLabel_1);
 	        
-	        JLabel lblNewLabel_2 = new JLabel("Các tập tin nhận được");
+	        JLabel lblNewLabel_2 = new JLabel("Các tệp đã in thành công");
 	        lblNewLabel_2.setFont(new Font("Dialog", Font.BOLD, 13));
-	        lblNewLabel_2.setBounds(173, 211, 165, 19);
+	        lblNewLabel_2.setBounds(173, 231, 165, 19);
 	        contentPane.add(lblNewLabel_2);
 	        
 	        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-	        tabbedPane.setBounds(576, 86, 174, 312);
+	        tabbedPane.setBounds(576, 86, 221, 138);
 	        contentPane.add(tabbedPane);
 	        
 	        JScrollPane scrollPane_2 = new JScrollPane();
@@ -189,17 +193,42 @@ public class Server extends JFrame{
 	        scrollPane_2.setViewportView(list_dS_cLient);
 	        
 	        
+	        JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+	        tabbedPane_1.setBounds(576, 230, 221, 158);
+	        JScrollPane scrollPane_3 = new JScrollPane();
+	         list_dS_hangDoi = new JList();
+	        scrollPane_3.setViewportView(list_dS_hangDoi);
+	        tabbedPane_1.addTab("DS hàng đợi", null, scrollPane_3, null);
+	        contentPane.add(tabbedPane_1);
+	        
+	        JLabel lblD = new JLabel();
+	        lblD.setForeground(new Color(0, 0, 153));
+	        lblD.setHorizontalAlignment(SwingConstants.CENTER);
+	        lblD.setFont(new Font("Tahoma", Font.BOLD, 13));
+	        lblD.setText("d");
+	        lblD.setBounds(729, 386, 68, 18);
+	        contentPane.add(lblD);
+	        
+	        JLabel lblSLngTp = new JLabel();
+	        lblSLngTp.setText("Số lượng tệp đang đợi");
+	        lblSLngTp.setFont(new Font("Tahoma", Font.PLAIN, 12));
+	        lblSLngTp.setBounds(576, 386, 143, 18);
+	        contentPane.add(lblSLngTp);
+	        
+	        
 	        btnKhoiDongServer.addActionListener(new ActionListener() {
 	         	public void actionPerformed(ActionEvent e) {
 	         		listtt.setModel(modFile);
 	         		list_dS_cLient.setModel(modClient);
+	         		list_dS_hangDoi.setModel(modHangdoi);
+	         		lblD.setText(tam);
 	         		
 	         	        run = new Thread(new Runnable() {
 	         	            @Override
 	         	            public void run() {
 	         	            	try {
 	         	                    server = new ServerSocket(Integer.parseInt(txtPortServer.getText().trim()));
-	         	                    txt.append("Server stating ...\n");
+	         	                    txt.append("Đang khởi động máy chủ...\n");
 	         	                    while (true) {
 	         	                		ServerThread sv = new ServerThread(server.accept(), modFile, 
 	         	                				modClient, txt);
@@ -207,10 +236,13 @@ public class Server extends JFrame{
 	         	                	 	listtt.setModel(sv.getModFile());
 	         	                	 	list_dS_cLient.setModel(sv.getModClient());
 	         	                	 	txt = sv.getTxt();
+	         	                		list_dS_hangDoi.setModel(modHangdoi);
+	         	                		tam =String.valueOf(modHangdoi.size() + 1);
+	         	                		lblD.setText(tam);
 	         	                	 
 	         	                   }
 	         	                } catch (Exception e) {
-	         	                    JOptionPane.showMessageDialog(Server.this, e, "Error", JOptionPane.ERROR_MESSAGE);
+	         	                    JOptionPane.showMessageDialog(Server.this, e, "Lỗi", JOptionPane.ERROR_MESSAGE);
 	         	                }
 
 	         	            }
@@ -224,7 +256,7 @@ public class Server extends JFrame{
 	 
 	        setLocationRelativeTo(null);
 //			setVisible(true);
-			setBounds(100, 100, 806, 465);
+			setBounds(100, 100, 830, 465);
 			setResizable(false);
 	 }
 	  
