@@ -1,0 +1,15 @@
+báo cáo: -> slide
+- ghi rõ môn học phần (đồ án học phần ...)
+- lời mở đầu: giới thiệu thêm về môn học, về đề tài
+- chương 1: cơ sở lý thuyết
+   + giới thiệu (khái niệm, mô hình, giao thức, ngôn ngữ...)
+- chương 2: Phân tích thiết kế hệ thống
+  +(sơ đồ, thành phần, chức năng cấu thành ứng dụng...)
+- chương 3: Chương trình demo
+- Kết luận:
+   + làm đc j, chưa làm đc j
+   + ưu, nhược điểm của ứng dụng
+   + hướng phát triển
+   + học đc j
+- Trích dẫn tài liệu tham khảo
+(tầm 20 - 30 trang (ko bắt buộc))
